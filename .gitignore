@@ -1,0 +1,3 @@
+week01/zipData.zip
+week01/*.csv
+!week01/YouBike.csv
