@@ -4,8 +4,7 @@ import csv
 #抓取7-eleven各門市資訊
 import requests #抓取網頁的套件
 import pandas as pd #分析資料的套件
-# 建立一個縣市的list
-selectCity = ['金門縣', '連江縣', '澎湖縣', '新北市']
+# 建立一個縣市的lis
 citys = ['基隆市', '台北市', '新北市', '桃園市', '新竹市','新竹縣','苗栗縣','台中市','彰化縣', '雲林縣', '南投縣', '嘉義縣', '嘉義市', '台南市', '高雄市', '屏東縣', '台東縣', '花蓮縣', '宜蘭縣', '連江縣', '金門縣', '澎湖縣']
 #使用迴圈依序取得每一個城市的門市資訊， enumerate(city) 產生[0, 基隆市] [1, 台北市][2, 新北市][3, 桃園市]
 table = []
@@ -31,10 +30,6 @@ for index, city in enumerate(citys):
     # (1)
 #    print('%2d) %-*s 門市數量: %4d' % (index+1, 5, city, pd.read_html(res.text, header=0)[0].shape[0]))
     table.append({"city":city, "n":pd.read_html(res.text, header=0)[0].shape[0]})
-#將資料輸出成Excel
-#print(table)
-#for city in table:
-#    print("%s: %d" %(city['city'], city['n']))
 key = ['city', 'n']
 with open("7-11city_n.csv", 'w') as csvfile:
     writer = csv.DictWriter(csvfile, fieldnames = key)
@@ -44,20 +39,20 @@ with open("7-11city_n.csv", 'w') as csvfile:
         writer.writerow(i)
 
 data = np.genfromtxt("7-11city_n.csv", delimiter=',', skip_header=1)
-print(type(data), data)
-pos = np.arange(len(data))
-#fig = plt.hist(data)
+#data = np.loadtxt("7-11city_n.csv", delimiter=',', skip_header=1)
+#data = np.read_csv("7-11city_n.csv")
+#data = csv.reader("7-11city_n.csv", delimiter=',')
+
+#print(type(data), data)
+#print(np.array(data[:,1]), len(data))
+plt.hist(data)
+#plt.ylim(0,1000)
+plt.title('how many 7-11 in city')
+plt.xlabel('city')
+plt.ylabel('n')
+
 plt.show()
-#fig = plt.figure(facecolor=(1, 0, 0, .1))
-#plt.show()
-#fig = plt.figure(figsize=plt.figaspect(2.0), facecolor=(1, 0, 0, .1))
-#plt.show()
-
 '''
-data = np.genfromtxt("president_heights.csv", delimiter=',', skip_header=1)
-read = np.randint(48, 80, (43, 2))
-np1 = np.append(data, w, axis=1)
-
 np1[:,4]=(np.array(np1[:,3]) / np.array(np1[:,2])**2) * 10000
 np.sort(np[:,4])
 m=np.array(np1[:,4])
