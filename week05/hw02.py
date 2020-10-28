@@ -35,70 +35,115 @@ df_7_11_store.to_excel('7_11.xlsx', encoding="UTF-8", index=False)
 dicfile = pd.read_excel('7_11.xlsx') #開啟已經儲存的execl
 k=0
 table = []
+table2 = []
 for fullAddress in dicfile['地址']: 
 #    if k >= 10:
 #        break
-    k=k+1
+#    k=k+1
     #縣市
-    print(fullAddress)
+#    print(fullAddress)
     start = fullAddress.find('縣') + 1
     if start == 0:
         start = fullAddress.find('市') + 1    
     end = len(fullAddress)
     address = fullAddress[start:len(fullAddress)]
-    print("1. 去除\"縣, 市\": %s\nstart: %d, end=len(fullAddress)" %(address, start))
-    
-    #區市
+#    print("1. 去除\"縣, 市\": %s\nstart: %d, end=len(fullAddress)" %(address, start))
+
+    #區市鄉
     start = address.find('區') + 1
     if start == 0:
         start = address.find('市') + 1    
     if start == 0:
         start = address.find('鄉') + 1    
+    if start == 0:
+        start = address.find('鎮') + 1    
     end = len(address)
     address = address[start:len(address)]
-    print("2. 去除\"區, 市, 鄉\": %s\nstart: %d, end=len(address)" %(address, start))
+#    print("2. 去除\"區, 市, 鄉, 鎮\": %s\nstart: %d, end=len(address)" %(address, start))
    
-    #里
+    #里, 村
+    start = address.find('里') + 1
+    if start == 0:
+        start = address.find('村') + 1    
+    end = len(address)
+    address = address[start:len(address)]
+#    print("3. 去除\"里, 村\": %s\nstart: %d, end=len(address)" %(address, start))
     
+    start = address.find('鄰') + 1    
+    if start == 0:
+        start = address.find('或') + 1
+    end = len(address)
+    address = address[start:len(address)]
+#    print("4. 去除\"鄰, 或\": %s\nstart: %d, end=len(address)" %(address, start))
 
-    #路, 段
-    start = address.find('區') + 1 #擷取OO路
-    end = address.find('路') + 1   #...
-    tail = len(address)
-    if end == tail:
-        end = address.find('段') + 1
-    if end == tail:
-        notfind = True
-    else:
-        notfind = False
-        road = address[0:end]
+    #路
+    road = ""
+    end1 = address.find('路') + 1
+    road = address[0:end1]
+    #街
+    ja = ""
+    end2 = address.find('街') + 1
+    ja = address[0:end2]
 
-    print(address)      #輸出檢查
-    if notfind:
-        print("end. notfind")
-    else:
-        print("end. 取得\"路, 段\": %s\nstart:%d, end:%d, tail:%d" %(road, 0, end, tail))
-    print("\n\n")
+#    print("road:", road)      #輸出檢查
+#    print("ja:", ja)      #輸出檢查
     
-    if not notfind:
+    #取得所在縣市
+    tail = len(fullAddress)
+    end = fullAddress.find('縣') + 1
+    if end == 0:
+        end = fullAddress.find('市') + 1
+    cityname = fullAddress[0:end]
+#    print("取得所在城市: %s" %cityname)
+#    print("\n\n")
+    #路
+    if road != "":
         flag = True
-        for i in range(len(table)):
-            if road == i:
+        for i in table:
+            if cityname == i["city"] and road == i["road"]:
                 flag = False
                 i['n'] = i['n'] + 1
                 break
         if flag:
-            newRoad = {"name": road, "n": 1}
+            newRoad = {"city":cityname, "road": road, "n": 1}
             table.append(newRoad.copy())
+    #街
+    if ja != "":
+        flag = True
+        for i in table2:
+            if cityname == i["city"] and ja == i["ja"]:
+                flag = False
+                i['n'] = i['n'] + 1
+                break
+        if flag:
+            newJa = {"city":cityname, "ja": ja, "n": 1}
+            table2.append(newJa.copy())
 
 #for i in table:
-#    print("road: %s have %s 7-11" %(i["name"], i["n"]))
+#    print("city: %s road: %s have %s 7-11" %(i["city"], i["road"], i["n"]))
 
-#print(table)
+#路
+print("top5 路:")
+for i in range(1, 6):
+    bigN=0
+    flag={}
+    for j in table:
+        if bigN < j['n']:
+            bigN = j['n']
+            flag = j
+    print("%d. %s%s有 %d 間7-11" %(i, flag['city'], flag['road'], flag['n']))
+    table.remove(flag)
+print("\n")
 
-
-
-
-
-
+#街
+print("top5 街:")
+for i in range(1, 6):
+    bigN=0
+    flag={}
+    for j in table2:
+        if bigN < j['n']:
+            bigN = j['n']
+            flag = j
+    print("%d. %s%s有 %d 間7-11" %(i, flag['city'], flag['ja'], flag['n']))
+    table2.remove(flag)
 
