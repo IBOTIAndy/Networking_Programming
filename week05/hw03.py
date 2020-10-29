@@ -33,6 +33,63 @@ def sortTable(table):
         if(i["number"] == ""):
             table.remove(i)
 
+def searchNumber(pattern, table):
+    now = {"name":"沒中", "n":0, "money":"0"}
+    for i in table:
+#        print(i)
+        if(i["name"] == "特別獎"):
+            if(pattern == i["number"]):
+                now["name"] = i["name"]
+                now["n"] = 10
+                now["money"] = "1000萬"
+                break
+        if(i["name"] == "特獎"):
+            if(pattern == i["number"]):
+                now["name"] = i["name"]
+                now["n"] = 9
+                now["money"] = "200萬"
+                break
+        if(i["name"] == "頭獎"):
+            temp = pattern
+            while(len(temp) >= 3):
+                if(now["n"] < len(temp) and temp == i["number"]):
+                    now["n"] = len(temp)
+                    break
+                i["number"] = (i["number"])[1:len(i["number"])]
+                temp = temp[1:len(temp)]
+        if(i["name"] == "増開六獎"):
+            temp = pattern[(8-3):len(pattern)]
+#            print(temp)
+            if(now["n"] < 2 and temp == i["number"]):
+                now["name"] = i["name"]
+                now["n"] = 2
+                now["money"] = "2百"
+                break
+    if(8 >= now["n"] and now["n"] >= 3):
+        if(now["n"] == 8):
+            now["name"] = "頭獎"
+            now["money"] = "20萬"
+        elif(now["n"] == 7):
+            now["name"] = "二獎"
+            now["money"] = "4萬"
+        elif(now["n"] == 6):
+            now["name"] = "三獎"
+            now["money"] = "1萬"
+        elif(now["n"] == 5):
+            now["name"] = "四獎"
+            now["money"] = "4千"
+        elif(now["n"] == 4):
+            now["name"] = "五獎"
+            now["money"] = "1千"
+        else:
+            now["name"] = "六獎"
+            now["money"] = "2百"
+#    print(now)
+    if(now["n"] != 0):
+        print("恭喜中了%s 獲得:%s元！" %(now["name"], now["money"]))
+    else:
+        print(now["name"])
+
 request_url = 'http://invoice.etax.nat.gov.tw/' #財政部官網
 htmlContent = urllib.request.urlopen(request_url).read() # 開散網址取得HTML
 soup = BeautifulSoup(htmlContent, "html.parser") #以"html.parser"解析設為
@@ -51,7 +108,7 @@ table1=[]
 for index, item in enumerate(results[:4]):
     print('>> {0} : {1}'.format(subTitle[index], item.text))
     table1.append({"name":format(subTitle[index]), "number":format(item.text)})
-print("上期統一愛票開獎號碼({0}):".format(month_previous))
+print("上期統一發票開獎號碼({0}):".format(month_previous))
 #print("table1:", table1)
 sortTable(table1)
 #print("table1_2:", table1)
@@ -63,28 +120,11 @@ for index2, item2 in enumerate(results[4:8]):
 #print("table2:", table2)
 sortTable(table2)
 #print("table2_2", table2)
-'''     
-def gethtmlfile(url):
-    try: #開啟網頁，處理可能的失敗
-        html = urllib.request.urlopen(url)
-    except urllib.error.HTTPError as e:
-        print(e)
-        return None
-    return html
 
-htmlfile = gethtmlfile(request_url) #讀取網頁，解碼
-htmlcontent = htmlfile.read().decode('utf-8')
-if htmlfile != None: #若讀取成供則搜尋字串
-    pattern = input("請輸入欲搜尋的字串 : ") # pattern存放欲搜尋的字串
-    if pattern in htmlcontent:
-        print("搜尋 {:s} 成功".format(pattern))
-    else:
-        print("搜尋 {:s} 失敗".format(pattern))
-    name = re.findall(pattern, htmlcontent) # 找到所有資料
-    if name != None: # 輸出找到次數
-        print("{:s} 出現 {:d} 次".format(pattern, len(name)))
-    else:
-        print("{:s} 出現 0 次".format(pattern))
-else:
-    print("網頁下載失敗")
-'''
+#搜尋發票有沒有中獎
+
+pattern = input("請輸入八位數發票號碼搜尋: ") # pattern存放欲搜尋的字串
+print("最新一期統一發票開獎號碼({0}):".format(month_newest), end='')
+searchNumber(pattern, table1)
+print("上期統一發票開獎號碼({0}):".format(month_previous), end='')
+searchNumber(pattern, table2)
