@@ -4,6 +4,35 @@ import urllib
 from bs4 import BeautifulSoup
 import urllib.request
 
+def sortTable(table):
+    flag1=True
+    flag2=True
+    for i in table:
+        if(i["name"] == '頭獎' and flag1):
+            while(i["number"] != ""):
+                end = 0
+                end = i["number"].find("、")
+                if(end == -1):
+                    end = len(i["number"])
+                number = (i["number"])[0:end]
+                i["number"] = (i["number"])[end+1:len(i["number"])]
+                table.append({"name":i["name"], "number":number})
+            flag1=False
+        if(i["name"] == '増開六獎' and flag2):
+            while(i["number"] != ""):
+                end = 0
+                end = i["number"].find("、")
+                if(end == -1):
+                    end = len(i["number"])
+                number = (i["number"])[0:end]
+                i["number"] = (i["number"])[end+1:len(i["number"])]
+                table.append({"name":i["name"], "number":number})
+            table.remove(i)
+            flag2=False
+    for i in table:
+        if(i["number"] == ""):
+            table.remove(i)
+
 request_url = 'http://invoice.etax.nat.gov.tw/' #財政部官網
 htmlContent = urllib.request.urlopen(request_url).read() # 開散網址取得HTML
 soup = BeautifulSoup(htmlContent, "html.parser") #以"html.parser"解析設為
@@ -23,33 +52,17 @@ for index, item in enumerate(results[:4]):
     print('>> {0} : {1}'.format(subTitle[index], item.text))
     table1.append({"name":format(subTitle[index]), "number":format(item.text)})
 print("上期統一愛票開獎號碼({0}):".format(month_previous))
-print("table1:", table1)
+#print("table1:", table1)
+sortTable(table1)
+#print("table1_2:", table1)
 
 table2=[]
 for index2, item2 in enumerate(results[4:8]):
     print ('>> {0} : {1}'.format(subTitle[index2], item2.text))
     table2.append({"name":format(subTitle[index2]), "number":format(item2.text)})
-print("table2:",table2)
-flag=True
-for i in table2:
-    print(i)
-    if(i["name"] == '頭獎' and flag):
-        end = i["number"].find("、")
-        number = (i["number"])[0:end]
-        table2.append({"name":i["name"], "number":number})
-        i["number"] = (i["number"])[end+2:len(i["number"])]
-
-        end = i["number"].find("、")
-        number = (i["number"])[0:end]
-        table2.append({"name":i["name"], "number":number})
-        i["number"] = (i["number"])[end+2:len(i["number"])]
-
-        number = (i["number"])[0:len(i["number"])]
-        table2.append({"name":i["name"], "number":number})
-        table2.remove(i)
-        flag=False
-
-print(table2)
+#print("table2:", table2)
+sortTable(table2)
+#print("table2_2", table2)
 '''     
 def gethtmlfile(url):
     try: #開啟網頁，處理可能的失敗
